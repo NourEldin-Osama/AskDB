@@ -40,10 +40,17 @@ repos:
   hooks:
   - id: prettier
     types_or: [html, css, javascript]
-    files: ^src/git_account_manager/static/.*\.(html|css|js)$
     args: [--tab-width, '4', --cache]
     additional_dependencies:
     - prettier@4.0.0-alpha.8
+
+- repo: https://github.com/hukkin/mdformat
+  rev: 0.7.22  # Use the ref you want to point at
+  hooks:
+  - id: mdformat
+    additional_dependencies:
+    - mdformat-gfm
+    - mdformat-ruff
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.11.2

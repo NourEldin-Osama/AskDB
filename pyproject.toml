@@ -3,7 +3,41 @@ name = "ai-chat-db"
 version = "0.1.0"
 description = "AI Chatbot that can answer questions based on database content"
 readme = "README.md"
+authors = [
+    {name = "NourEldin", email = "noureldin.osama.saad@gmail.com"}
+]
 requires-python = ">=3.11"
 dependencies = [
-    "langgraph>=0.3.20"
+    "langchain-community>=0.3.20",
+    "langchain-google-genai>=2.1.1",
+    "langgraph>=0.3.20",
+    "pydantic-settings>=2.8.1",
+    "tavily-python>=0.5.1",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "pytest"
+]
+lint = [
+    "ruff"
+]
+
+[tool.uv]
+default-groups = []
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle
+    "I",  # isort
+    "DTZ",  # flake8-datetimez
+    "UP",  # pyupgrade
+    "C90",  # mccabe
+    "Q",  # flake8-quotes
+    "RUF"  # Ruff-specific rules
 ]

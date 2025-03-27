@@ -16,5 +16,12 @@ ENV/
 # PyCharm
 .idea/
 
+# VS Code
+.vscode/
+
 # Ruff stuff:
 .ruff_cache/
+
+# Cline Extension
+.clinerules
+memory-bank/
