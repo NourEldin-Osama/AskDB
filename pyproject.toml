@@ -41,3 +41,11 @@ extend-select = [
     "Q",  # flake8-quotes
     "RUF"  # Ruff-specific rules
 ]
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+
+[project.scripts]
+ai-chat-db = "ai_chat_db:main"

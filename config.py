@@ -10,6 +10,7 @@ PROJECT_ROOT = Path(__file__).parent
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
+    # API Keys
     google_api_key: str
     tavily_api_key: str
 
