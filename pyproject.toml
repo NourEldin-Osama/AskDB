@@ -1,0 +1,9 @@
+[project]
+name = "ai-chat-db"
+version = "0.1.0"
+description = "AI Chatbot that can answer questions based on database content"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.3.20"
+]
