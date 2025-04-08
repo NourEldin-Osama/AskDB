@@ -9,11 +9,13 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "faker>=37.1.0",
+    "fastapi[all]>=0.115.12",
     "langchain-community>=0.3.20",
     "langchain-google-genai>=2.1.1",
     "langgraph>=0.3.20",
     "langgraph-checkpoint-sqlite>=2.0.6",
     "pydantic-settings>=2.8.1",
+    "sqlmodel>=0.0.24",
     "tavily-python>=0.5.1",
 ]
 
@@ -46,6 +48,7 @@ extend-select = [
     "Q",  # flake8-quotes
     "RUF"  # Ruff-specific rules
 ]
+extend-ignore = ["RUF001", "B904", "B008"]
 
 [build-system]
 requires = ["uv_build"]

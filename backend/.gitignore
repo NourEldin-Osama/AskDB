@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+env/
+venv/
+ENV/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Ruff stuff:
+.ruff_cache/
+
+# Cline Extension
+.clinerules
+memory-bank/
+
+*.db
+*.sqlite*
