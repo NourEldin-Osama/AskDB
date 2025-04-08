@@ -45,7 +45,7 @@ def get_tables() -> str:
         table_name = table[0]
         if table_name:
             table_names.append(table_name)
-    return "\n".join(table_names)
+    return ", ".join(table_names)
 
 
 @tool
