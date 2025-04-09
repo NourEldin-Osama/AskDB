@@ -18,7 +18,7 @@ model_list = [
     "gemini-2.0-flash",
 ]
 
-model_name = model_list[0]
+model_name = model_list[1]
 
 search_tool = TavilySearchResults(max_results=2, tavily_api_key=settings.tavily_api_key)
 search_tool.name = "search_tool"

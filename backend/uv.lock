@@ -889,7 +889,7 @@ wheels = [
 
 [[package]]
 name = "langgraph"
-version = "0.3.26"
+version = "0.3.27"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "langchain-core" },
@@ -898,9 +898,9 @@ dependencies = [
     { name = "langgraph-sdk" },
     { name = "xxhash" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/20/d2c4f8b6378ec0d2b9f8925b9e1fdaa6cb0e1ac16213676ba6f6cbc45c09/langgraph-0.3.26.tar.gz", hash = "sha256:cb50d819da206bb0267febf265bd5bda8915aa6d61729d2f86dd5e0d0e83f8fd", size = 120112 }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/ab/889224bafa9f927150095c038481d485dc567bd81e82e676d912f5d62c13/langgraph-0.3.27.tar.gz", hash = "sha256:bd731f9e56b82d069b20b360107f8cfc7e80f3035d33fcfb833cf80bcb2a270d", size = 120537 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/63/c1/868cb7be1c4ba16c1ea48aa7ffd772264441154dd62dad56b34381d3a41d/langgraph-0.3.26-py3-none-any.whl", hash = "sha256:3a153f1b869ce8bfee551bd7911eef6f207a76594a41419e7d9bd498367c49ef", size = 142415 },
+    { url = "https://files.pythonhosted.org/packages/42/59/822928941a8c4251b61d7fd0616b1b8c99ce9e6829034160e5e47ef85cc2/langgraph-0.3.27-py3-none-any.whl", hash = "sha256:7d866fcd4cb0bc4931b5d5ec622c8bda9b88c41e37c79fd9ef1007460fb448a1", size = 142961 },
 ]
 
 [[package]]
@@ -957,7 +957,7 @@ wheels = [
 
 [[package]]
 name = "langsmith"
-version = "0.3.27"
+version = "0.3.28"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
@@ -968,9 +968,9 @@ dependencies = [
     { name = "requests-toolbelt" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/12/bdae56a738323d4616ac4f57597b7e6430e51fc0865c50f0ca1cbf2c3259/langsmith-0.3.27.tar.gz", hash = "sha256:0bdeda73cf723cbcde1cab0f3459f7e5d5748db28a33bf9f6bdc0e2f4fe0ee1e", size = 342927 }
+sdist = { url = "https://files.pythonhosted.org/packages/da/00/55826a0645e9f65537c952f2467d18de74c022636c72cb52a2f85e4add6a/langsmith-0.3.28.tar.gz", hash = "sha256:4666595207131d7f8d83418e54dc86c05e28562e5c997633e7c33fc18f9aeb89", size = 343020 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ce/cd/dbd2f4adc5ad134a8c5e961cbadd9cd15e6226ad4fe85a133292b33862cd/langsmith-0.3.27-py3-none-any.whl", hash = "sha256:060956aaed5f391a85829daa0c220b5e07b2e7dd5d33be4b92f280672be984f7", size = 357526 },
+    { url = "https://files.pythonhosted.org/packages/26/ed/6796c37ecf95f6810355f559f55d0a4953cd97eb37c47632a49968f060bf/langsmith-0.3.28-py3-none-any.whl", hash = "sha256:54ac8815514af52d9c801ad7970086693667e266bf1db90fc453c1759e8407cd", size = 357680 },
 ]
 
 [[package]]

@@ -4,6 +4,9 @@ from sqlmodel import Session, SQLModel, create_engine, select
 from ai_chat_db.Chatbot import graph
 from ai_chat_db.config import settings
 from ai_chat_db.models import ChatMessage
+from markdown_it import MarkdownIt
+
+md = MarkdownIt()
 
 app = FastAPI(title="Chatbot API", description="API to interact with the chatbot", version="1.0.0")
 
@@ -26,6 +29,8 @@ def chat_endpoint(chat_message: ChatMessage):
         config = {"configurable": {"thread_id": chat_message.thread_id}}
         response = graph.invoke({"messages": [{"role": "user", "content": chat_message.message}]}, config)
         response_text = response["messages"][-1].content  # Get the last message from the response
+        # Convert Markdown to HTML
+        response_text = md.render(response_text)
         return {"response": response_text}
     except Exception as error:
         raise HTTPException(status_code=500, detail=error)
