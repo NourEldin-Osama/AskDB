@@ -3,3 +3,6 @@
 # Cline Extension
 .clinerules
 memory-bank/
+
+node_modules/
+.next/
