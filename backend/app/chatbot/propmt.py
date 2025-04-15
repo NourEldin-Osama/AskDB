@@ -1,4 +1,9 @@
+import warnings
+
 from langchain import hub
+
+warnings.filterwarnings("ignore", module="langsmith.*")
+
 
 prompt_template = hub.pull("langchain-ai/sql-agent-system-prompt")
 
