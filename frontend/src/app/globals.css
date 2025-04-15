@@ -122,6 +122,12 @@ body {
   font-family: var(--font-geist-sans);
 }
 
+/* Fix unwanted Radix ScrollArea ghost divs */
+[data-slot="scroll-area-viewport"] > div[style*="display: table"] {
+  display: block !important;
+  min-width: 0 !important;
+}
+
 /* Welcome message styles */
 .welcome-heading {
   background: linear-gradient(135deg,

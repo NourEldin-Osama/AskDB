@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { Send, Loader2 } from "lucide-react"
+import { Send, Loader2, Copy as CopyIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
@@ -144,12 +144,31 @@ export default function ChatInterface({ threadId, token, updateThreadTitle, upda
                                 className={`${message.role === 'user'
                                     ? 'message-bubble-user'
                                     : 'message-bubble-bot'
-                                    } px-4 py-2 rounded-lg max-w-[80%]`}
+                                    } px-4 py-2 rounded-lg max-w-[80%] relative`}
                             >
                                 <div
                                     className="text-user-foreground prose dark:prose-invert max-w-none"
                                     dangerouslySetInnerHTML={{ __html: message.content }}
                                 />
+                                {message.role === "assistant" && (
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="button"
+                                            className="mt-1 bg-white/80 hover:bg-white text-xs text-gray-700 px-2 py-1 rounded shadow transition flex items-center gap-1"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(
+                                                    // Strip HTML tags for clean copy
+                                                    message.content.replace(/<[^>]+>/g, "")
+                                                );
+                                                toast.success("Copied!");
+                                            }}
+                                            aria-label="Copy to clipboard"
+                                        >
+                                            <CopyIcon className="w-4 h-4" />
+                                            Copy
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))
@@ -170,15 +189,16 @@ export default function ChatInterface({ threadId, token, updateThreadTitle, upda
             {/* Input area */}
             <div className="border-t border-gray-300 bg-surface/80 backdrop-blur-sm p-4">
                 <form onSubmit={handleSubmit} className="flex space-x-2">
-                    <Textarea
-                        ref={inputRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Type your message..."
-                        className="input-background flex-1 min-h-[60px] max-h-[200px] resize-none focus-visible:ring-user/30"
-                        disabled={isLoading}
-                    />
+<Textarea
+    ref={inputRef}
+    value={input}
+    onChange={(e) => setInput(e.target.value)}
+    onKeyDown={handleKeyDown}
+    placeholder="Type your message..."
+    className="input-background flex-1 min-h-[40px] max-h-[100px] resize-none focus-visible:ring-user/30 w-full overflow-y-auto"
+    style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+    disabled={isLoading}
+/>
                     <Button
                         type="submit"
                         disabled={isLoading || !input.trim()}
