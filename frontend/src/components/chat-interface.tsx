@@ -7,6 +7,7 @@ import { Send, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import { BackendAPI } from "@/lib/api"
 
 interface Message {
     id: string
@@ -17,11 +18,12 @@ interface Message {
 
 interface ChatInterfaceProps {
     threadId: string
-    updateThreadName: (threadId: string, name: string) => void
+    token: string
+    updateThreadTitle: (threadId: string, title: string) => void
     updateThreadLastMessage: (threadId: string, message: string) => void
 }
 
-export default function ChatInterface({ threadId, updateThreadName, updateThreadLastMessage }: ChatInterfaceProps) {
+export default function ChatInterface({ threadId, token, updateThreadTitle, updateThreadLastMessage }: ChatInterfaceProps) {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -45,14 +47,14 @@ export default function ChatInterface({ threadId, updateThreadName, updateThread
         if (threadId && messages.length > 0) {
             localStorage.setItem(`messages-${threadId}`, JSON.stringify(messages))
 
-            // Update thread name if it's the default and we have user messages
+            // Update thread title if it's the default and we have user messages
             const userMessages = messages.filter((m) => m.role === "user")
             if (userMessages.length > 0) {
-                // Only update thread name if it's the first message (i.e., when the thread is created)
+                // Only update thread title if it's the first message (i.e., when the thread is created)
                 if (userMessages.length === 1) {
                     const firstUserMessage = userMessages[0].content
-                    const threadName = firstUserMessage.length > 30 ? firstUserMessage.substring(0, 30) + "..." : firstUserMessage
-                    updateThreadName(threadId, threadName)
+                    const threadTitle = firstUserMessage.length > 30 ? firstUserMessage.substring(0, 30) + "..." : firstUserMessage
+                    updateThreadTitle(threadId, threadTitle)
                 }
 
                 // Update last message
@@ -60,7 +62,7 @@ export default function ChatInterface({ threadId, updateThreadName, updateThread
                 updateThreadLastMessage(threadId, lastMessage)
             }
         }
-    }, [messages, threadId, updateThreadName, updateThreadLastMessage])
+    }, [messages, threadId, updateThreadTitle, updateThreadLastMessage])
 
     // Scroll to bottom when messages change
     useEffect(() => {
@@ -89,22 +91,7 @@ export default function ChatInterface({ threadId, updateThreadName, updateThread
         setIsLoading(true)
 
         try {
-            const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    message: userMessage.content,
-                    threadId,
-                }),
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to get response from the chatbot")
-            }
-
-            const data = await response.json()
+            const data = await BackendAPI.chatbotMessage(token, userMessage.content, threadId)
 
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
@@ -131,6 +118,10 @@ export default function ChatInterface({ threadId, updateThreadName, updateThread
 
     return (
         <div className="flex flex-col h-full bg-gradient-to-br from-background via-background/80 to-user/5">
+            {/* Title Area */}
+            <div className="text-center py-4"> {/* Removed border classes */}
+                <h1 className="text-xl font-semibold welcome-heading">AskDB</h1> {/* Added welcome-heading class */}
+            </div>
             {/* Chat messages area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 ? (
@@ -177,7 +168,7 @@ export default function ChatInterface({ threadId, updateThreadName, updateThread
             </div>
 
             {/* Input area */}
-            <div className="border-t border-surface-border bg-surface/80 backdrop-blur-sm p-4">
+            <div className="border-t border-gray-300 bg-surface/80 backdrop-blur-sm p-4">
                 <form onSubmit={handleSubmit} className="flex space-x-2">
                     <Textarea
                         ref={inputRef}
@@ -192,8 +183,9 @@ export default function ChatInterface({ threadId, updateThreadName, updateThread
                         type="submit"
                         disabled={isLoading || !input.trim()}
                         className="self-end"
+                        size="lg" // Updated to use the larger size variant
                     >
-                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-6 w-6 text-white" />}
                         <span className="sr-only">Send message</span>
                     </Button>
                 </form>

@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-user to-user/80 text-user-foreground shadow-lg shadow-user/20 hover:opacity-90",
+          "bg-gradient-to-br from-[hsl(var(--user))] to-[hsl(var(--bot))] text-user-foreground shadow-lg shadow-user/20 hover:opacity-90 hover:shadow-blue-500",
         destructive:
           "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20 hover:opacity-90",
         outline:
@@ -24,7 +24,7 @@ const buttonVariants = cva(
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        lg: "h-12 rounded-lg px-8 has-[>svg]:px-6",
         icon: "size-9",
       },
     },

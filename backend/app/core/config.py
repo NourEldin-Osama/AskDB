@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 24  # 1 day
 
     # BACKEND_CORS_ORIGINS is a comma-separated list of origins
-    all_cors_origins: list[str] = ["http://localhost:3000"]
+    all_cors_origins: list[str] = ["http://localhost:3000", "http://127.0.1:3000"]
 
     # Database
     SQLALCHEMY_DATABASE_URI: str = f"sqlite:///{APP_DATA_DIR}/askdb.db"

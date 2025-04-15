@@ -9,10 +9,10 @@
   --user-foreground: 0 0% 100%;
   --bot: 142 76% 36%;       /* Fresh green */
   --bot-foreground: 0 0% 100%;
-  --sidebar: 224 71% 4%;
-  --sidebar-foreground: 213 31% 91%;
-  --sidebar-hover: 224 71% 8%;
-  --sidebar-active: 142 76% 36%;
+  --sidebar: 0 0% 96%; /* Subtle light gray */
+  --sidebar-foreground: 222 47% 11%; /* Professional dark text */
+  --sidebar-hover: 0 0% 92%; /* Slightly darker on hover */
+  --sidebar-active: 250 95% 64%; /* Accent blue for active */
   
   /* Message bubbles gradients */
   --message-user: linear-gradient(135deg, hsl(250 95% 64%), hsl(250 95% 54%));
@@ -21,7 +21,7 @@
   /* Surface colors */
   --surface: 0 0% 100%;
   --surface-hover: 0 0% 98%;
-  --surface-border: 0 0% 90%;
+  --surface-border: 0 0% 80%; /* Darker border for better contrast */
 }
 
 @theme inline {
@@ -76,12 +76,14 @@
   border: 1px solid hsl(var(--bot) / 0.1);
 }
 
-/* Gradient backgrounds with dark mode optimization */
+.message-bubble-user,
+.message-bubble-bot {
+  color: #fff !important;
+}
+
+/* Remove sidebar gradient and use solid color */
 .sidebar-gradient {
-  background: linear-gradient(180deg, 
-    hsl(var(--sidebar)) 0%, 
-    hsl(224 71% 2%) 100%
-  );
+  background: hsl(var(--sidebar));
   border-right: 1px solid hsl(var(--surface-border));
 }
 

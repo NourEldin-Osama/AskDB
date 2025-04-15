@@ -8,13 +8,21 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 interface ThreadSidebarProps {
-    threads: { id: string; name: string; lastMessage?: string }[]
+    threads: { id: string; title: string; lastMessage?: string }[]
     currentThreadId: string
     createNewThread: () => void
     deleteThread: (id: string) => void
-    updateThreadName: (id: string, name: string) => void
+    updateThreadTitle: (id: string, title: string) => void
     isOpen: boolean
     setIsOpen: (isOpen: boolean) => void
+}
+
+// Helper to strip HTML tags using DOM
+function htmlToText(html: string): string {
+    if (typeof window === "undefined") return html;
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
 }
 
 export default function ThreadSidebar({
@@ -22,21 +30,21 @@ export default function ThreadSidebar({
     currentThreadId,
     createNewThread,
     deleteThread,
-    updateThreadName,
+    updateThreadTitle,
     isOpen,
     setIsOpen,
 }: ThreadSidebarProps) {
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [editName, setEditName] = useState("")
+    const [editTitle, setEditTitle] = useState("")
 
-    const startEditing = (id: string, currentName: string) => {
+    const startEditing = (id: string, currentTitle: string) => {
         setEditingId(id)
-        setEditName(currentName)
+        setEditTitle(currentTitle)
     }
 
     const saveEdit = () => {
-        if (editingId && editName.trim()) {
-            updateThreadName(editingId, editName.trim())
+        if (editingId && editTitle.trim()) {
+            updateThreadTitle(editingId, editTitle.trim())
             setEditingId(null)
         }
     }
@@ -81,8 +89,8 @@ export default function ThreadSidebar({
                                     <div className="flex items-center p-2 rounded-md border">
                                         <input
                                             type="text"
-                                            value={editName}
-                                            onChange={(e) => setEditName(e.target.value)}
+                                            value={editTitle}
+                                            onChange={(e) => setEditTitle(e.target.value)}
                                             onBlur={saveEdit}
                                             onKeyDown={(e) => e.key === "Enter" && saveEdit()}
                                             className="flex-1 bg-transparent outline-none"
@@ -101,9 +109,16 @@ export default function ThreadSidebar({
                                         <div className="flex items-center gap-2 overflow-hidden">
                                             <MessageSquare className="h-4 w-4 flex-shrink-0" />
                                             <div className="truncate">
-                                                <div className="font-medium truncate">{thread.name}</div>
+                                                <div
+                                                    className="font-medium truncate cursor-pointer"
+                                                    onDoubleClick={() => startEditing(thread.id, thread.title)}
+                                                >
+                                                    {thread.title}
+                                                </div>
                                                 {thread.lastMessage && (
-                                                    <div className="text-xs text-gray-500 truncate">{thread.lastMessage}</div>
+                                                    <div className="text-xs text-gray-500 truncate">
+                                                        {htmlToText(thread.lastMessage)}
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -111,7 +126,7 @@ export default function ThreadSidebar({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-7 w-7"
+                                            className="h-7 w-7 group/delete"
                                             onClick={(e) => {
                                                 e.preventDefault()
                                                 e.stopPropagation()
@@ -119,7 +134,7 @@ export default function ThreadSidebar({
                                             }}
                                             aria-label="Delete thread"
                                         >
-                                            <Trash2 className="h-4 w-4" />
+                                            <Trash2 className="h-4 w-4 transition-colors group-hover/delete:text-red-500" />
                                         </Button>
                                     </Link>
                                 )}

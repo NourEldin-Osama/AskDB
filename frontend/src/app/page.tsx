@@ -2,89 +2,138 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { v4 as uuidv4 } from "uuid"
 import ChatInterface from "@/components/chat-interface"
 import ThreadSidebar from "@/components/thread-sidebar"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
+import { BackendAPI } from "@/lib/api"
 
 export default function Home() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const [threads, setThreads] = useState<{ id: string; name: string; lastMessage?: string }[]>([])
+    const [threads, setThreads] = useState<{ id: string; title: string; lastMessage?: string }[]>([])
+    const [token, setToken] = useState<string | null>(null)
+    const [loginEmail, setLoginEmail] = useState("")
+    const [loginPassword, setLoginPassword] = useState("")
+    const [loginError, setLoginError] = useState<string | null>(null)
     const currentThreadId = searchParams.get("thread") || ""
 
-    // Initialize with a default thread if none exists
+    // On mount, load token from localStorage (client only)
     useEffect(() => {
         if (typeof window !== "undefined") {
-            const storedThreads = localStorage.getItem("chatThreads")
-            let parsedThreads = storedThreads ? JSON.parse(storedThreads) : []
-
-            if (parsedThreads.length === 0) {
-                const newThreadId = uuidv4()
-                parsedThreads = [{ id: newThreadId, name: "New Conversation" }]
-                localStorage.setItem("chatThreads", JSON.stringify(parsedThreads))
-                router.push(`/?thread=${newThreadId}`)
-            } else if (!currentThreadId) {
-                router.push(`/?thread=${parsedThreads[0].id}`)
-            }
-
-            setThreads(parsedThreads)
+            const storedToken = localStorage.getItem("jwtToken")
+            if (storedToken) setToken(storedToken)
         }
-    }, [router, currentThreadId])
+    }, [])
 
-    const createNewThread = () => {
-        const newThreadId = uuidv4()
-        const updatedThreads = [{ id: newThreadId, name: "New Conversation" }, ...threads]
-        setThreads(updatedThreads)
-        localStorage.setItem("chatThreads", JSON.stringify(updatedThreads))
-        router.push(`/?thread=${newThreadId}`)
-        setIsSidebarOpen(false)
+    // Persist token to localStorage and fetch threads after login
+    useEffect(() => {
+        if (token) {
+            localStorage.setItem("jwtToken", token)
+            BackendAPI.fetchThreads(token)
+                .then((data) => {
+                    const sorted = (data.data || []).slice().sort(
+                        (a: { id: string }, b: { id: string }) => (a.id < b.id ? 1 : -1)
+                    )
+                    setThreads(sorted)
+                    if (!currentThreadId && sorted.length > 0) {
+                        router.push(`/?thread=${sorted[0].id}`)
+                    }
+                })
+                .catch(() => setThreads([]))
+        }
+    }, [token, currentThreadId, router])
+
+    // Login handler
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLoginError(null)
+        try {
+            const t = await BackendAPI.login(loginEmail, loginPassword)
+            setToken(t)
+            localStorage.setItem("jwtToken", t)
+        } catch (err: any) {
+            setLoginError(err.message || "Login failed")
+        }
     }
 
-    const updateThreadName = useCallback((threadId: string, name: string) => {
-        setThreads((prevThreads) => {
-            const threadExists = prevThreads.some(thread => thread.id === threadId);
-            if (!threadExists) return prevThreads; // Avoid updates if thread is deleted
+    const createNewThread = async () => {
+        if (!token) return
+        try {
+            const thread = await BackendAPI.createThread(token, "New Conversation")
+            setThreads((prev) => [thread, ...prev])
+            router.push(`/?thread=${thread.id}`)
+            setIsSidebarOpen(false)
+        } catch { }
+    }
 
-            const needsUpdate = prevThreads.find(thread => thread.id === threadId)?.name !== name;
-            if (!needsUpdate) return prevThreads; // Avoid unnecessary updates
-
-            const updated = prevThreads.map((thread) =>
-                thread.id === threadId ? { ...thread, name } : thread
-            );
-            localStorage.setItem("chatThreads", JSON.stringify(updated));
-            return updated;
-        });
-    }, []);
+    const updateThreadTitle = useCallback(
+        async (threadId: string, title: string) => {
+            if (!token) return
+            try {
+                const updated = await BackendAPI.updateThread(token, threadId, title)
+                setThreads((prev) =>
+                    prev.map((thread) => (thread.id === threadId ? { ...thread, title: updated.title } : thread)),
+                )
+            } catch { }
+        },
+        [token],
+    )
 
     const updateThreadLastMessage = useCallback((threadId: string, message: string) => {
         setThreads((prevThreads) => {
             const threadExists = prevThreads.some(thread => thread.id === threadId);
-            if (!threadExists) return prevThreads; // Avoid updates if thread is deleted
-
+            if (!threadExists) return prevThreads;
             const needsUpdate = prevThreads.find(thread => thread.id === threadId)?.lastMessage !== message;
-            if (!needsUpdate) return prevThreads; // Avoid unnecessary updates
-
+            if (!needsUpdate) return prevThreads;
             const updated = prevThreads.map((thread) =>
                 thread.id === threadId ? { ...thread, lastMessage: message } : thread
             );
-            localStorage.setItem("chatThreads", JSON.stringify(updated));
             return updated;
         });
     }, []);
 
-    const deleteThread = (threadId: string) => {
-        const updatedThreads = threads.filter((thread) => thread.id !== threadId)
-        setThreads(updatedThreads)
-        localStorage.setItem("chatThreads", JSON.stringify(updatedThreads))
+    const deleteThread = async (threadId: string) => {
+        if (!token) return
+        try {
+            await BackendAPI.deleteThread(token, threadId)
+            const updatedThreads = threads.filter((thread) => thread.id !== threadId)
+            setThreads(updatedThreads)
+            if (currentThreadId === threadId && updatedThreads.length > 0) {
+                router.push(`/?thread=${updatedThreads[0].id}`)
+            } else if (updatedThreads.length === 0) {
+                createNewThread()
+            }
+        } catch { }
+    }
 
-        if (currentThreadId === threadId && updatedThreads.length > 0) {
-            router.push(`/?thread=${updatedThreads[0].id}`)
-        } else if (updatedThreads.length === 0) {
-            createNewThread()
-        }
+    if (!token) {
+        return (
+            <main className="flex items-center justify-center h-screen">
+                <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-full max-w-sm">
+                    <h2 className="text-xl font-semibold mb-4">Login</h2>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        className="w-full mb-2 p-2 border rounded"
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="w-full mb-4 p-2 border rounded"
+                        required
+                    />
+                    {loginError && <div className="text-red-500 mb-2">{loginError}</div>}
+                    <Button type="submit" className="w-full">Login</Button>
+                </form>
+            </main>
+        )
     }
 
     return (
@@ -107,7 +156,7 @@ export default function Home() {
                 currentThreadId={currentThreadId}
                 createNewThread={createNewThread}
                 deleteThread={deleteThread}
-                updateThreadName={updateThreadName}
+                updateThreadTitle={updateThreadTitle}
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
             />
@@ -117,7 +166,8 @@ export default function Home() {
                 {currentThreadId && (
                     <ChatInterface
                         threadId={currentThreadId}
-                        updateThreadName={updateThreadName}
+                        token={token!}
+                        updateThreadTitle={updateThreadTitle}
                         updateThreadLastMessage={updateThreadLastMessage}
                     />
                 )}
