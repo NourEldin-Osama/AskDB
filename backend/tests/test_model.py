@@ -1,6 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from ai_chat_db.config import settings
+from app.core.config import settings
 
 model_list = [
     "gemini-2.5-pro-exp-03-25",
@@ -14,7 +14,7 @@ def main() -> None:
     # Example usage of the settings and model
     model = ChatGoogleGenerativeAI(
         model=model_list[1],
-        google_api_key=settings.google_api_key,
+        google_api_key=settings.GOOGLE_API_KEY,
     )
     question = "what is Python?"
     print(f"Question: {question}")
