@@ -64,6 +64,7 @@ class Chatbot:
                 # Handle other message types if necessary
                 continue
 
+            message_content = render_markdown_to_html(message_content)
             chat_history.append(Message(role=role, content=message_content))
         return chat_history
 
