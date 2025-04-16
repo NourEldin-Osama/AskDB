@@ -75,5 +75,5 @@ def chat_history_endpoint(
         return ChatHistory(thread_id=thread_id, messages=chat_history)
     except HTTPException as http_error:
         raise http_error
-    except Exception as error:
+    except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
