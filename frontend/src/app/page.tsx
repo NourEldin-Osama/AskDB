@@ -104,15 +104,15 @@ export default function Home() {
 
     if (!token) {
         return (
-            <main className="flex items-center justify-center h-screen">
-                <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-                    <h2 className="text-xl font-semibold mb-4">Login</h2>
+            <main className="flex items-center justify-center h-screen bg-gray-50 dark:bg-[hsl(var(--background))]">
+                <form onSubmit={handleLogin} className="bg-white dark:bg-[hsl(var(--surface))] p-8 rounded-xl shadow-lg border border-blue-200 dark:border-[hsl(var(--surface-border))] w-full max-w-sm">
+                    <h2 className="text-2xl font-extrabold mb-4 text-blue-700 dark:text-[hsl(var(--user))] tracking-wide">Login</h2>
                     <input
                         type="email"
                         placeholder="Email"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
-                        className="w-full mb-2 p-2 border rounded"
+                        className="w-full mb-2 p-2 border border-blue-200 dark:border-[hsl(var(--surface-border))] rounded focus:outline-none focus:ring-2 focus:ring-[hsl(var(--user)/0.15)] transition placeholder-gray-500 bg-[hsl(var(--surface))] text-[hsl(var(--foreground))]"
                         required
                     />
                     <input
@@ -120,11 +120,11 @@ export default function Home() {
                         placeholder="Password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        className="w-full mb-4 p-2 border rounded"
+                        className="w-full mb-4 p-2 border border-blue-200 dark:border-[hsl(var(--surface-border))] rounded focus:outline-none focus:ring-2 focus:ring-[hsl(var(--user)/0.15)] transition placeholder-gray-500 bg-[hsl(var(--surface))] text-[hsl(var(--foreground))]"
                         required
                     />
                     {loginError && <div className="text-red-500 mb-2">{loginError}</div>}
-                    <Button type="submit" className="w-full">Login</Button>
+                    <Button type="submit" className="w-full bg-blue-600 dark:bg-[hsl(var(--user))] hover:bg-blue-700 dark:hover:bg-[hsl(var(--user))] text-white dark:text-[hsl(var(--user-foreground))] font-semibold rounded border border-blue-200 dark:border-[hsl(var(--surface-border))] transition">Login</Button>
                 </form>
             </main>
         )

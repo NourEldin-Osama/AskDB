@@ -215,7 +215,7 @@ export default function ChatInterface({ threadId, token, updateThreadTitle, onNe
             </div>
 
             {/* Input area */}
-            <div className="border-t border-gray-300 bg-surface/80 backdrop-blur-sm p-4">
+            <div className="border-t border-blue-200 dark:border-[hsl(var(--surface-border))] bg-surface/80 dark:bg-[hsl(var(--surface)/0.8)] backdrop-blur-sm p-4">
                 <form onSubmit={handleSubmit} className="flex space-x-2">
                     <Textarea
                         ref={inputRef}
@@ -223,7 +223,7 @@ export default function ChatInterface({ threadId, token, updateThreadTitle, onNe
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Type your message..."
-                        className="input-background flex-1 min-h-[40px] max-h-[100px] resize-none focus-visible:ring-user/30 w-full overflow-y-auto"
+                        className="input-background flex-1 min-h-[40px] max-h-[100px] resize-none focus-visible:ring-[hsl(var(--user)/0.15)] w-full overflow-y-auto border border-blue-200 dark:border-[hsl(var(--surface-border))] placeholder-gray-500 bg-[hsl(var(--surface))] text-[hsl(var(--foreground))]"
                         style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
                         disabled={isLoading}
                     />

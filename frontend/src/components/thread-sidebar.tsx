@@ -63,12 +63,12 @@ export default function ThreadSidebar({
             {/* Sidebar */}
             <div
                 className={cn(
-                    "fixed md:relative z-50 w-64 h-full sidebar-gradient text-sidebar-foreground border-r shadow-sm transition-transform duration-300 ease-in-out",
+                    "fixed md:relative z-50 w-64 h-full bg-[hsl(var(--sidebar))] text-[hsl(var(--sidebar-foreground))] border-r border-blue-200 dark:border-[hsl(var(--surface-border))] shadow-sm transition-transform duration-300 ease-in-out",
                     isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
                 )}
             >
-                <div className="flex items-center justify-between p-4 border-b">
-                    <h2 className="font-semibold text-lg">Conversations</h2>
+                <div className="flex items-center justify-between p-4 border-b border-blue-100 dark:border-[hsl(var(--surface-border))]">
+                    <h2 className="font-extrabold text-lg text-blue-700 dark:text-[hsl(var(--user))] tracking-wide">Conversations</h2>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -81,8 +81,12 @@ export default function ThreadSidebar({
                 </div>
 
                 <div className="p-2">
-                    <Button variant="outline" className="w-full justify-start gap-2" onClick={createNewThread}>
-                        <PlusCircle className="h-4 w-4" />
+                    <Button
+                        variant="outline"
+                        className="w-full justify-start gap-2 border-blue-400 text-blue-700 dark:text-[hsl(var(--user))] hover:bg-blue-50 dark:hover:bg-[hsl(var(--user)/0.08)] hover:border-blue-500 dark:hover:border-[hsl(var(--user))] hover:text-blue-800 dark:hover:text-[hsl(var(--user))] dark:border-[hsl(var(--surface-border))] transition-colors"
+                        onClick={createNewThread}
+                    >
+                        <PlusCircle className="h-4 w-4 text-blue-500 dark:text-[hsl(var(--user))]" />
                         New Conversation
                     </Button>
                 </div>
@@ -92,7 +96,7 @@ export default function ThreadSidebar({
                         {threads.map((thread) => (
                             <div key={thread.id} className="group">
                                 {editingId === thread.id ? (
-                                    <div className="flex items-center p-2 rounded-md border">
+                                    <div className="flex items-center p-2 rounded-md border border-blue-200 dark:border-[hsl(var(--surface-border))]">
                                         <input
                                             type="text"
                                             value={editTitle}
@@ -108,12 +112,12 @@ export default function ThreadSidebar({
                                         href={`/?thread=${thread.id}`}
                                         onClick={() => setIsOpen(false)}
                                         className={cn(
-                                            "flex items-center justify-between p-2 rounded-md hover:bg-sidebar-hover transition-colors",
-                                            currentThreadId === thread.id && "bg-sidebar-active",
+                                            "flex items-center justify-between p-2 rounded-md hover:bg-blue-100 dark:hover:bg-[hsl(var(--sidebar-hover))] transition-colors",
+                                            currentThreadId === thread.id && "bg-blue-200 dark:bg-blue-900",
                                         )}
                                     >
                                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                                            <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                                            <MessageSquare className={cn("h-4 w-4 flex-shrink-0", currentThreadId === thread.id ? "text-blue-600 dark:text-[hsl(var(--user))]" : "text-teal-500 dark:text-[hsl(var(--bot))]")} />
                                             <div className="flex flex-col min-w-0">
                                                 <div
                                                     className="font-medium truncate cursor-pointer overflow-hidden min-w-0 capitalize"
@@ -135,7 +139,7 @@ export default function ThreadSidebar({
                                             }}
                                             aria-label="Delete thread"
                                         >
-                                            <Trash2 className="h-4 w-4 transition-colors group-hover/delete:text-red-500" />
+                                            <Trash2 className="h-4 w-4 transition-colors group-hover/delete:text-red-500 text-gray-400 dark:text-[hsl(var(--sidebar-foreground)/0.5)]" strokeWidth={2.5} />
                                         </Button>
                                     </Link>
                                 )}
