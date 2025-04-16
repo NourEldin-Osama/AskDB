@@ -57,7 +57,8 @@ class Chatbot:
                 role = "human"
             elif isinstance(message, AIMessage):
                 role = "ai"
-                if message.tool_calls and not message_content and not message_content.strip():
+                # if message.tool_calls and not message_content and not message_content.strip():
+                if message.tool_calls:
                     continue
             else:
                 # Handle other message types if necessary
