@@ -17,52 +17,63 @@ interface Message {
 }
 
 interface ChatInterfaceProps {
-    threadId: string
+    threadId?: string
     token: string
     updateThreadTitle: (threadId: string, title: string) => void
-    updateThreadLastMessage: (threadId: string, message: string) => void
+    onNewThread?: (threadId: string) => void
+    reset?: boolean
+    onResetHandled?: () => void
 }
 
-export default function ChatInterface({ threadId, token, updateThreadTitle, updateThreadLastMessage }: ChatInterfaceProps) {
+export default function ChatInterface({ threadId, token, updateThreadTitle, onNewThread, reset, onResetHandled }: ChatInterfaceProps) {
     const [messages, setMessages] = useState<Message[]>([])
     const [input, setInput] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLTextAreaElement>(null)
+    const prevThreadIdRef = useRef<string | undefined>(undefined);
 
-    // Load messages for the current thread
+    // Reset messages and input when reset flag is set
+    useEffect(() => {
+        if (reset) {
+            setMessages([]);
+            setInput("");
+            if (onResetHandled) onResetHandled();
+            prevThreadIdRef.current = undefined;
+        }
+    }, [reset, onResetHandled]); // Added onResetHandled dependency
+
+    // Load messages for the current thread from backend AND handle clearing
     useEffect(() => {
         if (threadId) {
-            const storedMessages = localStorage.getItem(`messages-${threadId}`)
-            if (storedMessages) {
-                setMessages(JSON.parse(storedMessages))
-            } else {
-                setMessages([])
+            // Only fetch if switching to a different thread (not just after creating/sending first message)
+            if (
+                messages.length === 0 ||
+                (prevThreadIdRef.current && prevThreadIdRef.current !== threadId)
+            ) {
+                BackendAPI.fetchChatHistory(token, threadId)
+                    .then((data) => {
+                        const mapped = (data.messages || []).map((msg: any, idx: number) => ({
+                            id: `${threadId}-${idx}`,
+                            content: msg.content,
+                            role: msg.role === "ai" ? "assistant" : "user",
+                            timestamp: Date.now() + idx, // Not accurate, but required for UI
+                        }));
+                        setMessages(mapped);
+                    })
+                    .catch(() => setMessages([])); // Clear on error
             }
-        }
-    }, [threadId])
-
-    // Save messages whenever they change
-    useEffect(() => {
-        if (threadId && messages.length > 0) {
-            localStorage.setItem(`messages-${threadId}`, JSON.stringify(messages))
-
-            // Update thread title if it's the default and we have user messages
-            const userMessages = messages.filter((m) => m.role === "user")
-            if (userMessages.length > 0) {
-                // Only update thread title if it's the first message (i.e., when the thread is created)
-                if (userMessages.length === 1) {
-                    const firstUserMessage = userMessages[0].content
-                    const threadTitle = firstUserMessage.length > 30 ? firstUserMessage.substring(0, 30) + "..." : firstUserMessage
-                    updateThreadTitle(threadId, threadTitle)
-                }
-
-                // Update last message
-                const lastMessage = messages[messages.length - 1].content
-                updateThreadLastMessage(threadId, lastMessage)
+            prevThreadIdRef.current = threadId;
+        } else {
+            if (messages.length > 0) {
+                setMessages([]);
+                setInput(""); // Also clear input here
             }
+            prevThreadIdRef.current = undefined;
         }
-    }, [messages, threadId, updateThreadTitle, updateThreadLastMessage])
+        // Only re-run if threadId or token changes.
+    }, [threadId, token]);
+
 
     // Scroll to bottom when messages change
     useEffect(() => {
@@ -91,7 +102,24 @@ export default function ChatInterface({ threadId, token, updateThreadTitle, upda
         setIsLoading(true)
 
         try {
-            const data = await BackendAPI.chatbotMessage(token, userMessage.content, threadId)
+            let data
+            let newThreadId = threadId
+            if (!threadId) {
+                data = await BackendAPI.chatbotMessage(token, userMessage.content)
+                if (typeof data.thread_id === "string" && data.thread_id) {
+                    newThreadId = data.thread_id
+                    if (onNewThread && newThreadId) onNewThread(newThreadId)
+                    // Update thread title only when creating a new thread
+                    if (typeof newThreadId === "string") {
+                        const threadTitle = userMessage.content.length > 30
+                            ? userMessage.content.substring(0, 30) + "..."
+                            : userMessage.content
+                        updateThreadTitle(newThreadId, threadTitle)
+                    }
+                }
+            } else {
+                data = await BackendAPI.chatbotMessage(token, userMessage.content, threadId)
+            }
 
             const botMessage: Message = {
                 id: (Date.now() + 1).toString(),
@@ -189,16 +217,16 @@ export default function ChatInterface({ threadId, token, updateThreadTitle, upda
             {/* Input area */}
             <div className="border-t border-gray-300 bg-surface/80 backdrop-blur-sm p-4">
                 <form onSubmit={handleSubmit} className="flex space-x-2">
-<Textarea
-    ref={inputRef}
-    value={input}
-    onChange={(e) => setInput(e.target.value)}
-    onKeyDown={handleKeyDown}
-    placeholder="Type your message..."
-    className="input-background flex-1 min-h-[40px] max-h-[100px] resize-none focus-visible:ring-user/30 w-full overflow-y-auto"
-    style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-    disabled={isLoading}
-/>
+                    <Textarea
+                        ref={inputRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type your message..."
+                        className="input-background flex-1 min-h-[40px] max-h-[100px] resize-none focus-visible:ring-user/30 w-full overflow-y-auto"
+                        style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+                        disabled={isLoading}
+                    />
                     <Button
                         type="submit"
                         disabled={isLoading || !input.trim()}

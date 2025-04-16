@@ -1,7 +1,24 @@
+from datetime import datetime
 from uuid import UUID, uuid4
 
+import sqlalchemy as sa
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
+
+
+class TimestampMixin(SQLModel):
+    created_at: datetime | None = Field(
+        default=None,
+        sa_type=sa.DateTime(timezone=True),
+        sa_column_kwargs={"server_default": sa.func.now()},
+        nullable=False,
+    )
+
+    updated_at: datetime | None = Field(
+        default=None,
+        sa_type=sa.DateTime(timezone=True),
+        sa_column_kwargs={"server_default": sa.func.now(), "onupdate": sa.func.now()},
+    )
 
 
 # Shared properties
@@ -40,7 +57,7 @@ class UpdatePassword(SQLModel):
 
 
 # Database model, database table inferred from class name
-class User(UserBase, table=True):
+class User(UserBase, TimestampMixin, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     hashed_password: str
     threads: list["Thread"] = Relationship(back_populates="user", cascade_delete=True)
@@ -49,6 +66,8 @@ class User(UserBase, table=True):
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: UUID
+    created_at: datetime | None
+    updated_at: datetime | None
 
 
 class UsersPublic(SQLModel):
@@ -68,7 +87,7 @@ class ThreadUpdate(SQLModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
 
 
-class Thread(ThreadBase, table=True):
+class Thread(ThreadBase, TimestampMixin, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     user_id: UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
     user: User | None = Relationship(back_populates="threads")
@@ -77,6 +96,8 @@ class Thread(ThreadBase, table=True):
 class ThreadPublic(ThreadBase):
     id: UUID
     user_id: UUID
+    created_at: datetime | None
+    updated_at: datetime | None
 
 
 class ThreadsPublic(SQLModel):
@@ -84,16 +105,42 @@ class ThreadsPublic(SQLModel):
     count: int
 
 
-# Generic message
-class Message(SQLModel):
+# Generic response
+class Response(SQLModel):
     message: str
 
 
-class ChatMessage(Message):
-    thread_id: UUID = Field(
-        ...,
+class Message(SQLModel):
+    role: str | None = Field(default=None)
+    content: str
+
+
+class UserMessage(Message):
+    role: str = Field(default="user")
+    content: str = Field(
+        description="Message content from the user",
+        schema_extra={"examples": ["Hello, how can I help you?"]},
+    )
+    thread_id: UUID | None = Field(
+        default=None,
+        description="Thread ID for the conversation (optional for first message)",
+    )
+
+
+class ChatHistoryRequest(SQLModel):
+    thread_id: UUID | None = Field(
+        default=None,
         description="Thread ID for the conversation",
-        schema_extra={"examples": ["uuid-string"]},
+    )
+
+
+class ChatHistory(SQLModel):
+    thread_id: UUID | None = Field(
+        default=None,
+        description="Thread ID for the conversation",
+    )
+    messages: list[Message] = Field(
+        description="List of messages in the chat history",
     )
 
 

@@ -72,19 +72,32 @@ export const BackendAPI = {
         return response.json();
     },
 
-    async chatbotMessage(token: string, message: string, threadId: string) {
+    async chatbotMessage(token: string, message: string, threadId?: string) {
+        const body: any = { content: message };
+        if (threadId) body.thread_id = threadId;
+
         const response = await fetch(`${API_BASE}/chatbot/chat`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({
-                message,
-                thread_id: threadId,
-            }),
+            body: JSON.stringify(body),
         });
         if (!response.ok) throw new Error("Failed to get chatbot response");
+        return response.json();
+    },
+
+    async fetchChatHistory(token: string, threadId: string) {
+        const response = await fetch(`${API_BASE}/chatbot/chat-history`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ thread_id: threadId }),
+        });
+        if (!response.ok) throw new Error("Failed to fetch chat history");
         return response.json();
     },
 };

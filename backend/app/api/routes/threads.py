@@ -2,10 +2,10 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from sqlmodel import func, select
+from sqlmodel import col, func, select
 
 from app.api.dependencies import CurrentUser, SessionDependency
-from app.models import Message, Thread, ThreadCreate, ThreadPublic, ThreadsPublic, ThreadUpdate
+from app.models import Response, Thread, ThreadCreate, ThreadPublic, ThreadsPublic, ThreadUpdate
 
 router = APIRouter(prefix="/threads", tags=["threads"])
 
@@ -19,12 +19,18 @@ def read_threads(session: SessionDependency, current_user: CurrentUser, skip: in
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(Thread)
         count = session.exec(count_statement).one()
-        statement = select(Thread).offset(skip).limit(limit)
+        statement = select(Thread).order_by(col(Thread.created_at).desc()).offset(skip).limit(limit)
         threads = session.exec(statement).all()
     else:
         count_statement = select(func.count()).select_from(Thread).where(Thread.user_id == current_user.id)
         count = session.exec(count_statement).one()
-        statement = select(Thread).where(Thread.user_id == current_user.id).offset(skip).limit(limit)
+        statement = (
+            select(Thread)
+            .where(Thread.user_id == current_user.id)
+            .order_by(col(Thread.created_at).desc())
+            .offset(skip)
+            .limit(limit)
+        )
         threads = session.exec(statement).all()
 
     return ThreadsPublic(data=threads, count=count)
@@ -80,7 +86,7 @@ def update_thread(
 
 
 @router.delete("/{id}")
-def delete_thread(session: SessionDependency, current_user: CurrentUser, id: uuid.UUID) -> Message:
+def delete_thread(session: SessionDependency, current_user: CurrentUser, id: uuid.UUID) -> Response:
     """
     Delete an thread.
     """
@@ -91,4 +97,4 @@ def delete_thread(session: SessionDependency, current_user: CurrentUser, id: uui
         raise HTTPException(status_code=400, detail="Not enough permissions")
     session.delete(thread)
     session.commit()
-    return Message(message="Thread deleted successfully")
+    return Response(message="Thread deleted successfully")

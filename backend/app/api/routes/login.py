@@ -9,7 +9,7 @@ from app.api.dependencies import CurrentUser, SessionDependency
 from app.core import security
 from app.core.config import settings
 from app.core.security import get_password_hash
-from app.models import Message, NewPassword, Token, UserPublic
+from app.models import NewPassword, Response, Token, UserPublic
 from app.utils import (
     verify_password_reset_token,
 )
@@ -40,7 +40,7 @@ def test_token(current_user: CurrentUser) -> Any:
 
 
 @router.post("/password-recovery/{email}")
-def recover_password(email: str, session: SessionDependency) -> Message:
+def recover_password(email: str, session: SessionDependency) -> Response:
     """
     Password Recovery
     """
@@ -51,11 +51,11 @@ def recover_password(email: str, session: SessionDependency) -> Message:
             status_code=404,
             detail="The user with this email does not exist in the system.",
         )
-    return Message(message="Password recovery email sent")
+    return Response(message="Password recovery email sent")
 
 
 @router.post("/reset-password/")
-def reset_password(session: SessionDependency, body: NewPassword) -> Message:
+def reset_password(session: SessionDependency, body: NewPassword) -> Response:
     """
     Reset password
     """
@@ -74,4 +74,4 @@ def reset_password(session: SessionDependency, body: NewPassword) -> Message:
     user.hashed_password = hashed_password
     session.add(user)
     session.commit()
-    return Message(message="Password updated successfully")
+    return Response(message="Password updated successfully")

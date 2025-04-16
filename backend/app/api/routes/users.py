@@ -12,7 +12,7 @@ from app.api.dependencies import (
 )
 from app.core.security import get_password_hash, verify_password
 from app.models import (
-    Message,
+    Response,
     Thread,
     UpdatePassword,
     User,
@@ -80,7 +80,7 @@ def update_user_me(*, session: SessionDependency, user_in: UserUpdateMe, current
     return current_user
 
 
-@router.patch("/me/password", response_model=Message)
+@router.patch("/me/password", response_model=Response)
 def update_password_me(*, session: SessionDependency, body: UpdatePassword, current_user: CurrentUser) -> Any:
     """
     Update own password.
@@ -93,7 +93,7 @@ def update_password_me(*, session: SessionDependency, body: UpdatePassword, curr
     current_user.hashed_password = hashed_password
     session.add(current_user)
     session.commit()
-    return Message(message="Password updated successfully")
+    return Response(message="Password updated successfully")
 
 
 @router.get("/me", response_model=UserPublic)
@@ -104,7 +104,7 @@ def read_user_me(current_user: CurrentUser) -> Any:
     return current_user
 
 
-@router.delete("/me", response_model=Message)
+@router.delete("/me", response_model=Response)
 def delete_user_me(session: SessionDependency, current_user: CurrentUser) -> Any:
     """
     Delete own user.
@@ -113,7 +113,7 @@ def delete_user_me(session: SessionDependency, current_user: CurrentUser) -> Any
         raise HTTPException(status_code=403, detail="Super users are not allowed to delete themselves")
     session.delete(current_user)
     session.commit()
-    return Message(message="User deleted successfully")
+    return Response(message="User deleted successfully")
 
 
 @router.post("/signup", response_model=UserPublic)
@@ -179,7 +179,7 @@ def update_user(
 
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])
-def delete_user(session: SessionDependency, current_user: CurrentUser, user_id: uuid.UUID) -> Message:
+def delete_user(session: SessionDependency, current_user: CurrentUser, user_id: uuid.UUID) -> Response:
     """
     Delete a user.
     """
@@ -192,4 +192,4 @@ def delete_user(session: SessionDependency, current_user: CurrentUser, user_id: 
     session.exec(statement)  # type: ignore
     session.delete(user)
     session.commit()
-    return Message(message="User deleted successfully")
+    return Response(message="User deleted successfully")

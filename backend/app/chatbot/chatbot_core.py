@@ -1,17 +1,24 @@
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.prebuilt import create_react_agent
 
-from app.chatbot.memory import chat_memory
+from app.chatbot.memory import memory
 from app.chatbot.model import model
 from app.chatbot.propmt import system_message
 from app.chatbot.tools import tools
 from app.chatbot.utils import render_markdown_to_html
+from app.models import Message
 
 
 class Chatbot:
     """Encapsulates the chatbot functionality."""
 
     def __init__(self):
-        self.agent = create_react_agent(model, tools, checkpointer=chat_memory, prompt=system_message)
+        self.memory = memory
+        self.model = model
+        self.tools = tools
+        self.agent = create_react_agent(
+            model=self.model, tools=self.tools, checkpointer=self.memory, prompt=system_message
+        )
 
     def stream_graph_updates(self, user_input: str, thread_id: str) -> None:
         """
@@ -32,6 +39,32 @@ class Chatbot:
         response = self.agent.invoke({"messages": [{"role": "user", "content": message}]}, config)
         response_message = response["messages"][-1].content
         return render_markdown_to_html(response_message)
+
+    def get_chat_history(self, thread_id: str) -> list[Message]:
+        """
+        Retrieve the chat history for a given thread ID.
+        Returns a list of messages
+        """
+        config = {"configurable": {"thread_id": thread_id}}
+        messages = self.agent.get_state(config).values.get("messages")
+        chat_history = []
+        if not messages:
+            return chat_history
+        for message in messages:
+            role = None
+            message_content = message.content
+            if isinstance(message, HumanMessage):
+                role = "human"
+            elif isinstance(message, AIMessage):
+                role = "ai"
+                if message.tool_calls and not message_content and not message_content.strip():
+                    continue
+            else:
+                # Handle other message types if necessary
+                continue
+
+            chat_history.append(Message(role=role, content=message_content))
+        return chat_history
 
 
 def main() -> None:

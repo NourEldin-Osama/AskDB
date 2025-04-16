@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { PlusCircle, Trash2, X, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 interface ThreadSidebarProps {
-    threads: { id: string; title: string; lastMessage?: string }[]
+    threads: { id: string; title: string }[]
     currentThreadId: string
     createNewThread: () => void
     deleteThread: (id: string) => void
@@ -36,6 +36,12 @@ export default function ThreadSidebar({
 }: ThreadSidebarProps) {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editTitle, setEditTitle] = useState("")
+
+    // Reset editing state when switching threads
+    useEffect(() => {
+        setEditingId(null);
+        setEditTitle("");
+    }, [currentThreadId]);
 
     const startEditing = (id: string, currentTitle: string) => {
         setEditingId(id)
@@ -98,45 +104,40 @@ export default function ThreadSidebar({
                                         />
                                     </div>
                                 ) : (
-<Link
-    href={`/?thread=${thread.id}`}
-    onClick={() => setIsOpen(false)}
-    className={cn(
-        "flex items-center justify-between p-2 rounded-md hover:bg-sidebar-hover transition-colors",
-        currentThreadId === thread.id && "bg-sidebar-active",
-    )}
->
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <MessageSquare className="h-4 w-4 flex-shrink-0" />
-                    <div className="flex flex-col min-w-0">
-                        <div
-                            className="font-medium truncate cursor-pointer overflow-hidden min-w-0 capitalize"
-                            onDoubleClick={() => startEditing(thread.id, thread.title)}
-                        >
-                            {thread.title}
-                        </div>
-                        {thread.lastMessage && (
-                            <div className="text-xs text-gray-500 truncate overflow-hidden min-w-0">
-                                {htmlToText(thread.lastMessage)}
-                            </div>
-                        )}
-                    </div>
-                </div>
+                                    <Link
+                                        href={`/?thread=${thread.id}`}
+                                        onClick={() => setIsOpen(false)}
+                                        className={cn(
+                                            "flex items-center justify-between p-2 rounded-md hover:bg-sidebar-hover transition-colors",
+                                            currentThreadId === thread.id && "bg-sidebar-active",
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                                            <div className="flex flex-col min-w-0">
+                                                <div
+                                                    className="font-medium truncate cursor-pointer overflow-hidden min-w-0 capitalize"
+                                                    onDoubleClick={() => startEditing(thread.id, thread.title)}
+                                                >
+                                                    {thread.title}
+                                                </div>
+                                            </div>
+                                        </div>
 
-    <Button
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7 group/delete flex-shrink-0"
-        onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            deleteThread(thread.id)
-        }}
-        aria-label="Delete thread"
-    >
-        <Trash2 className="h-4 w-4 transition-colors group-hover/delete:text-red-500" />
-    </Button>
-</Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 group/delete flex-shrink-0"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                deleteThread(thread.id)
+                                            }}
+                                            aria-label="Delete thread"
+                                        >
+                                            <Trash2 className="h-4 w-4 transition-colors group-hover/delete:text-red-500" />
+                                        </Button>
+                                    </Link>
                                 )}
                             </div>
                         ))}

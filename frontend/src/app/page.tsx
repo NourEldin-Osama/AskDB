@@ -7,43 +7,50 @@ import ThreadSidebar from "@/components/thread-sidebar"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
 import { BackendAPI } from "@/lib/api"
+import Loading from "./loading"
 
 export default function Home() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const [threads, setThreads] = useState<{ id: string; title: string; lastMessage?: string }[]>([])
+    const [threads, setThreads] = useState<{ id: string; title: string }[]>([])
     const [token, setToken] = useState<string | null>(null)
     const [loginEmail, setLoginEmail] = useState("")
     const [loginPassword, setLoginPassword] = useState("")
     const [loginError, setLoginError] = useState<string | null>(null)
+    const [isAuthLoading, setIsAuthLoading] = useState(true)
+    const [resetChat, setResetChat] = useState(false)
+    const [initialLoadComplete, setInitialLoadComplete] = useState(false) // New state
     const currentThreadId = searchParams.get("thread") || ""
 
     // On mount, load token from localStorage (client only)
     useEffect(() => {
         if (typeof window !== "undefined") {
+            setIsAuthLoading(true)
             const storedToken = localStorage.getItem("jwtToken")
             if (storedToken) setToken(storedToken)
+            setIsAuthLoading(false)
         }
     }, [])
 
-    // Persist token to localStorage and fetch threads after login
+    // Persist token, fetch threads, handle initial redirect
     useEffect(() => {
-        if (token) {
-            localStorage.setItem("jwtToken", token)
+        if (token && !isAuthLoading) { // Ensure auth check is done
+            localStorage.setItem("jwtToken", token);
             BackendAPI.fetchThreads(token)
                 .then((data) => {
-                    const sorted = (data.data || []).slice().sort(
-                        (a: { id: string }, b: { id: string }) => (a.id < b.id ? 1 : -1)
-                    )
-                    setThreads(sorted)
-                    if (!currentThreadId && sorted.length > 0) {
-                        router.push(`/?thread=${sorted[0].id}`)
-                    }
+                    const fetchedThreads = (data.data || []);
+                    setThreads(fetchedThreads);
+                    setInitialLoadComplete(true); // Mark initial load as complete
                 })
-                .catch(() => setThreads([]))
+                .catch(() => {
+                    setThreads([]);
+                    setInitialLoadComplete(true); // Also mark complete on error
+                });
+        } else if (!token && !isAuthLoading) {
+             setInitialLoadComplete(true); // No token, load is complete
         }
-    }, [token, currentThreadId, router])
+    }, [token, isAuthLoading, router, initialLoadComplete]);
 
     // Login handler
     const handleLogin = async (e: React.FormEvent) => {
@@ -58,14 +65,10 @@ export default function Home() {
         }
     }
 
-    const createNewThread = async () => {
-        if (!token) return
-        try {
-            const thread = await BackendAPI.createThread(token, "New Conversation")
-            setThreads((prev) => [thread, ...prev])
-            router.push(`/?thread=${thread.id}`)
-            setIsSidebarOpen(false)
-        } catch { }
+    const createNewThread = () => {
+        router.push(`/?`)
+        setIsSidebarOpen(false)
+        setResetChat(true) // trigger chat reset
     }
 
     const updateThreadTitle = useCallback(
@@ -81,19 +84,6 @@ export default function Home() {
         [token],
     )
 
-    const updateThreadLastMessage = useCallback((threadId: string, message: string) => {
-        setThreads((prevThreads) => {
-            const threadExists = prevThreads.some(thread => thread.id === threadId);
-            if (!threadExists) return prevThreads;
-            const needsUpdate = prevThreads.find(thread => thread.id === threadId)?.lastMessage !== message;
-            if (!needsUpdate) return prevThreads;
-            const updated = prevThreads.map((thread) =>
-                thread.id === threadId ? { ...thread, lastMessage: message } : thread
-            );
-            return updated;
-        });
-    }, []);
-
     const deleteThread = async (threadId: string) => {
         if (!token) return
         try {
@@ -106,6 +96,10 @@ export default function Home() {
                 createNewThread()
             }
         } catch { }
+    }
+
+    if (isAuthLoading) {
+        return <Loading />
     }
 
     if (!token) {
@@ -163,14 +157,23 @@ export default function Home() {
 
             {/* Main chat area */}
             <div className="flex-1 flex flex-col h-full">
-                {currentThreadId && (
-                    <ChatInterface
-                        threadId={currentThreadId}
-                        token={token!}
-                        updateThreadTitle={updateThreadTitle}
-                        updateThreadLastMessage={updateThreadLastMessage}
-                    />
-                )}
+                <ChatInterface
+                    threadId={currentThreadId || undefined}
+                    token={token!}
+                    updateThreadTitle={updateThreadTitle}
+                    onNewThread={(newThreadId: string) => {
+                        // 1. Update the URL
+                        router.push(`/?thread=${newThreadId}`);
+
+                        // 2. Optimistically add the new thread to the UI
+                        setThreads((prevThreads) => [
+                            { id: newThreadId, title: "New Chat..." },
+                            ...prevThreads,
+                        ]);
+                    }}
+                    reset={resetChat}
+                    onResetHandled={() => setResetChat(false)}
+                />
             </div>
         </main>
     )
