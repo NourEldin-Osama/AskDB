@@ -111,18 +111,22 @@ export default function ThreadSidebar({
                                     <Link
                                         href={`/?thread=${thread.id}`}
                                         onClick={() => setIsOpen(false)}
+                                        onDoubleClick={(e) => {
+                                            if ((e.target as HTMLElement).closest("button")) {
+                                                return;
+                                            }
+                                            e.preventDefault();
+                                            startEditing(thread.id, thread.title);
+                                        }}
                                         className={cn(
-                                            "flex items-center justify-between p-2 rounded-md hover:bg-blue-100 dark:hover:bg-[hsl(var(--sidebar-hover))] transition-colors",
+                                            "flex items-center justify-between p-2 rounded-md hover:bg-blue-100 dark:hover:bg-[hsl(var(--user)/0.15)] transition-colors",
                                             currentThreadId === thread.id && "bg-blue-200 dark:bg-blue-900",
                                         )}
                                     >
                                         <div className="flex items-center gap-2 flex-1 min-w-0">
                                             <MessageSquare className={cn("h-4 w-4 flex-shrink-0", currentThreadId === thread.id ? "text-blue-600 dark:text-[hsl(var(--user))]" : "text-teal-500 dark:text-[hsl(var(--bot))]")} />
                                             <div className="flex flex-col min-w-0">
-                                                <div
-                                                    className="font-medium truncate cursor-pointer overflow-hidden min-w-0 capitalize"
-                                                    onDoubleClick={() => startEditing(thread.id, thread.title)}
-                                                >
+                                                <div className="font-medium truncate cursor-pointer overflow-hidden min-w-0 capitalize">
                                                     {thread.title}
                                                 </div>
                                             </div>
