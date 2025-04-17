@@ -11,7 +11,7 @@ from app.core.config import settings
 def get_database_engine():
     """Get the database engine for SQLite."""
     return create_engine(
-        "sqlite:///realestate.db",
+        f"sqlite:///{settings.chatbot_db_file}",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )

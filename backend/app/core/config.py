@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # Model name for the chatbot
     model_name: model_name_options | str = "gemini-2.5-pro-exp-03-25"  # default model
 
+    # Chatbot database file
+    chatbot_db_file: str = "realestate.db"
+
     # API Keys
     GOOGLE_API_KEY: str
     TAVILY_API_KEY: str
