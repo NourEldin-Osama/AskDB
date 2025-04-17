@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -8,6 +9,8 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 USER_HOME = Path.home()
 APP_DATA_DIR = USER_HOME / ".askdb"
 APP_DATA_DIR.mkdir(exist_ok=True)
+
+model_name_options = Literal["gemini-2.5-pro-exp-03-25", "gemini-2.0-flash-lite", "gemini-2.0-flash"]
 
 
 class Settings(BaseSettings):
@@ -19,6 +22,9 @@ class Settings(BaseSettings):
 
     # Memory DB path for chatbot
     memory_db_path: str = str(APP_DATA_DIR / "checkpoints.sqlite")
+
+    # Model name for the chatbot
+    model_name: model_name_options | str = "gemini-2.5-pro-exp-03-25"  # default model
 
     # API Keys
     GOOGLE_API_KEY: str

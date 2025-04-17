@@ -35,7 +35,8 @@ askdb = "app.main:main"
 [dependency-groups]
 dev = [
     "pre-commit",
-    "pytest"
+    "pytest",
+    "Faker"
 ]
 lint = [
     "ruff"
