@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from scalar_fastapi import get_scalar_api_reference
 from sqlmodel import Session
 from starlette.middleware.cors import CORSMiddleware
 
@@ -11,7 +12,9 @@ from app.core.database import engine, init_db
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
-    return f"{route.tags[0]}-{route.name}"
+    if route.tags:
+        return f"{route.tags[0]}-{route.name}"
+    return f"{route.name}"
 
 
 @asynccontextmanager
@@ -42,6 +45,14 @@ if settings.all_cors_origins:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.get("/scalar", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title=app.title,
+    )
 
 
 def main() -> None:

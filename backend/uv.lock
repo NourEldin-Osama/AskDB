@@ -8,59 +8,6 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "askdb"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "alembic" },
-    { name = "bcrypt" },
-    { name = "fastapi", extra = ["all"] },
-    { name = "langchain-community" },
-    { name = "langchain-google-genai" },
-    { name = "langgraph" },
-    { name = "langgraph-checkpoint-sqlite" },
-    { name = "passlib", extra = ["bcrypt"] },
-    { name = "pydantic-settings" },
-    { name = "pyjwt" },
-    { name = "sqlmodel" },
-    { name = "tavily-python" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "faker" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-]
-lint = [
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.15.2" },
-    { name = "bcrypt", specifier = "==4.0.1" },
-    { name = "fastapi", extras = ["all"], specifier = ">=0.115.12" },
-    { name = "langchain-community", specifier = ">=0.3.20" },
-    { name = "langchain-google-genai", specifier = ">=2.1.1" },
-    { name = "langgraph", specifier = ">=0.3.20" },
-    { name = "langgraph-checkpoint-sqlite", specifier = ">=2.0.6" },
-    { name = "passlib", extras = ["bcrypt"], specifier = ">=1.7.4" },
-    { name = "pydantic-settings", specifier = ">=2.8.1" },
-    { name = "pyjwt", specifier = ">=2.10.1" },
-    { name = "sqlmodel", specifier = ">=0.0.24" },
-    { name = "tavily-python", specifier = ">=0.5.1" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "faker" },
-    { name = "pre-commit" },
-    { name = "pytest" },
-]
-lint = [{ name = "ruff" }]
-
-[[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -194,6 +141,61 @@ sdist = { url = "https://files.pythonhosted.org/packages/95/7d/4c1bd541d4dffa1b5
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a1/ee/48ca1a7c89ffec8b6a0c5d02b89c305671d5ffd8d3c94acf8b8c408575bb/anyio-4.9.0-py3-none-any.whl", hash = "sha256:9f76d541cad6e36af7beb62e978876f3b41e3e04f2c1fbf0884604c0a9c4d93c", size = 100916 },
 ]
+
+[[package]]
+name = "askdb"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "alembic" },
+    { name = "bcrypt" },
+    { name = "fastapi", extra = ["all"] },
+    { name = "langchain-community" },
+    { name = "langchain-google-genai" },
+    { name = "langgraph" },
+    { name = "langgraph-checkpoint-sqlite" },
+    { name = "passlib", extra = ["bcrypt"] },
+    { name = "pydantic-settings" },
+    { name = "pyjwt" },
+    { name = "scalar-fastapi" },
+    { name = "sqlmodel" },
+    { name = "tavily-python" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "faker" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+]
+lint = [
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.15.2" },
+    { name = "bcrypt", specifier = "==4.0.1" },
+    { name = "fastapi", extras = ["all"], specifier = ">=0.115.12" },
+    { name = "langchain-community", specifier = ">=0.3.20" },
+    { name = "langchain-google-genai", specifier = ">=2.1.1" },
+    { name = "langgraph", specifier = ">=0.3.20" },
+    { name = "langgraph-checkpoint-sqlite", specifier = ">=2.0.6" },
+    { name = "passlib", extras = ["bcrypt"], specifier = ">=1.7.4" },
+    { name = "pydantic-settings", specifier = ">=2.8.1" },
+    { name = "pyjwt", specifier = ">=2.10.1" },
+    { name = "scalar-fastapi", specifier = ">=1.0.3" },
+    { name = "sqlmodel", specifier = ">=0.0.24" },
+    { name = "tavily-python", specifier = ">=0.5.1" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "faker" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+]
+lint = [{ name = "ruff" }]
 
 [[package]]
 name = "attrs"
@@ -1843,6 +1845,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ff/61/c488943414fb2b8754c02f3879de003e26efdd20f38167ded3fb3fc1cda3/ruff-0.11.4-py3-none-win32.whl", hash = "sha256:0e9365a7dff9b93af933dab8aebce53b72d8f815e131796268709890b4a83270", size = 10311496 },
     { url = "https://files.pythonhosted.org/packages/b6/2b/2a1c8deb5f5dfa3871eb7daa41492c4d2b2824a74d2b38e788617612a66d/ruff-0.11.4-py3-none-win_amd64.whl", hash = "sha256:5a9fa1c69c7815e39fcfb3646bbfd7f528fa8e2d4bebdcf4c2bd0fa037a255fb", size = 11399146 },
     { url = "https://files.pythonhosted.org/packages/4f/03/3aec4846226d54a37822e4c7ea39489e4abd6f88388fba74e3d4abe77300/ruff-0.11.4-py3-none-win_arm64.whl", hash = "sha256:d435db6b9b93d02934cf61ef332e66af82da6d8c69aefdea5994c89997c7a0fc", size = 10450306 },
+]
+
+[[package]]
+name = "scalar-fastapi"
+version = "1.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2c/04/08ae9e86f24cd9b43bc5b2068fc5d1dcd3e7efa6db860290734d7d742512/scalar_fastapi-1.0.3.tar.gz", hash = "sha256:9e9cb8398e298cd435a0171eebe1675b8899eb21e47c238db0d48783143f0ffb", size = 4107 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/9e/ca0ffc3fc4788c6e1367b96a70f2d6ee33f91d580664a8142ba7ee292ef2/scalar_fastapi-1.0.3-py3-none-any.whl", hash = "sha256:4a47a140795097ad034518ce0e32940f2c54f0f4bc60e4c3289ca30a7e6f954d", size = 4579 },
 ]
 
 [[package]]
