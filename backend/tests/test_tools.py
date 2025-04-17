@@ -1,4 +1,4 @@
-from ai_chat_db.Chatbot import tools
+from app.chatbot.tools import tools
 
 for tool in tools:
     print(f"Tool: {tool.name} - {tool.description}")
