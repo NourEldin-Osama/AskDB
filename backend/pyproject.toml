@@ -1,5 +1,5 @@
 [project]
-name = "ai-chat-db"
+name = "askdb"
 version = "0.1.0"
 description = "AI Chatbot that can answer questions based on database content"
 readme = "README.md"
