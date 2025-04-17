@@ -3,7 +3,7 @@ from langgraph.prebuilt import create_react_agent
 
 from app.chatbot.memory import memory
 from app.chatbot.model import model
-from app.chatbot.propmt import system_message
+from app.chatbot.prompt import system_message
 from app.chatbot.tools import tools
 from app.chatbot.utils import render_markdown_to_html
 from app.models import Message
